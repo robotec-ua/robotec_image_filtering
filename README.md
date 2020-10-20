@@ -75,7 +75,7 @@ The project uses following files
 ## Example of use
 That's not good to try detecting objects on pictures that aren't containing any desired objects. For optimization purposes, there should be a filter. This filter would try to detect some objects based on colors of the desired object and send the image further if there any object you would like it to be.
 
-To start the filtering you should run : 
+To start the filtering you should change the parameters in `launch/filtering.launch` and then run :
 ~~~bash
 $ roslaunch agrotec_image_filtering filtering.launch
 ~~~
