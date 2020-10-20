@@ -1,0 +1,9 @@
+<launch>
+    <node name="agrotec_image_filtering" pkg="agrotec_image_filtering" type="filter.py" output="screen">
+        <remap from="~input" to="/raspicam_node/image" />
+        <param name="~visualization" value="true" />
+        <rosparam param="~lower_color_boundary">[25, 52, 72]</rosparam>
+        <rosparam param="~upper_color_boundary">[102, 255, 255]</rosparam>
+        <rosparam param="~box_color">[0, 255, 0]</rosparam>
+    </node>
+</launch>
