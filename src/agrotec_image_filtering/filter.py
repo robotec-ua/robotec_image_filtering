@@ -12,9 +12,9 @@ class Node():
     def __init__(self):
         # Get ROS parameters
         self._publish_rate = rospy.get_param('~publish_rate', 100)
-        lower_color_boundary = rospy.get_param('~lower_color_boundary')
-        upper_color_boundary = rospy.get_param('~upper_color_boundary')
-        self._box_color = rospy.get_param('~box_color')
+        lower_color_boundary = rospy.get_param('/roslaunch/lower_color_boundary')
+        upper_color_boundary = rospy.get_param('/roslaunch/upper_color_boundary')
+        self._box_color = rospy.get_param('/roslaunch/box_color')
         self._toVisualize = rospy.get_param('~visualization')
             
         # Create ROS topics
@@ -29,7 +29,7 @@ class Node():
 
         # Set range for the color
         self._lower = np.array(lower_color_boundary, np.uint8) 
-        self._upper = np.array(upper_color_boundary, np.uint8) 
+        self._upper = np.array(upper_color_boundary, np.uint8)
 
     def __createMask(hsvFrame) :
         # Obtain masks for colored objects
@@ -56,17 +56,15 @@ class Node():
         return np_image
 
     def __detect_colors(np_image) : 
-        # If the message is not empty
-        if msg is not None:
-            hsvFrame = cv2.cvtColor(np_image, cv2.COLOR_BGR2HSV)
+        hsvFrame = cv2.cvtColor(np_image, cv2.COLOR_BGR2HSV)
 
-            # Create the mask
-            mask = __createMask(hsvFrame)
+        # Create the mask
+        mask = __createMask(hsvFrame)
 
-            # Create contours for the object
-            contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        # Create contours for the object
+        contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-            return contours 
+        return contours 
 
     def imageCallback(self, msg):
         if self._msg_lock.acquire(False):
@@ -86,31 +84,33 @@ class Node():
             else:
                 rate.sleep()
                 continue
+                    
+            # If the message is not empty
+            if msg is not None:
+                # Convert the message to an OpenCV object
+                np_image = cv_bridge.imgmsg_to_cv2(msg, 'bgr8')
 
-            # Convert the message to an OpenCV object
-            np_image = cv_bridge.imgmsg_to_cv2(msg, 'bgr8')
+                # Get the contours of the objects
+                contours = __detect_colors(np_image)
 
-            # Get the contours of the objects
-            contours = __detect_colors(np_image)
+                # IF there are detected objects
+                if (len(contours) != 0) :
+                    # Send the message
+                    self._result_pub.publish(msg)
+                    
+                    # If the option of visualization is enabled
+                    if (self._toVisualize) :
+                        # Draw the boxes over the original image
+                        np_image = __drawBoxes(np_image, mask)
 
-            # IF there are detected objects
-            if (len(contours) != 0) :
-                # Send the message
-                self._result_pub.publish(msg)
-                
-                # If the option of visualization is enabled
-                if (self._toVisualize) :
-                    # Draw the boxes over the original image
-                    np_image = __drawBoxes(np_image, mask)
-
-                    # Send the redrawn image
-                    redrawn_image = cv_bridge.cv2_to_imgmsg(np_image, 'bgr8')
-                    self._visual_pub.publish(redrawn_image)
+                        # Send the redrawn image
+                        redrawn_image = cv_bridge.cv2_to_imgmsg(np_image, 'bgr8')
+                        self._visual_pub.publish(redrawn_image)
                     
 
 def main():
     # Create a ROS node
-    rospy.init_node('image_filtering')
+    rospy.init_node('image_filtering', anonymous=True)
 
     # Start the program
     node = Node()
