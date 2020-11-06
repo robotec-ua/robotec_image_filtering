@@ -1,4 +1,4 @@
-# agrotec_image_filtering
+# robotec_image_filtering
 Image filtering based on color detection. The package uses OpenCV package to obtain precise coordinates of the predefined color and draw boxes over it to visualize the result.
 
 ## ROS Interfaces
