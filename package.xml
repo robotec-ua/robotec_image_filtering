@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <!-- Package data -->
-  <name>agrotec_image_filtering</name>
+  <name>robotec_image_filtering</name>
   <version>1.0.0</version>
   <description>Image filtering based on color detection.</description>
   <license>Apache</license>

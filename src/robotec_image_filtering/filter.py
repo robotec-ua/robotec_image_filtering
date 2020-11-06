@@ -110,7 +110,7 @@ class Node():
 
 def main():
     # Create a ROS node
-    rospy.init_node('image_filtering', anonymous=True)
+    rospy.init_node('robotec_image_filtering', anonymous=True)
 
     # Start the program
     node = Node()
